@@ -1,4 +1,4 @@
-module github.com/arkamfahry/typeid
+module github.com/arkamfahry/typeid-go
 
 go 1.22.4
 
