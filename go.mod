@@ -1,4 +1,4 @@
-module github.com/driftdev/typeid-go
+module github.com/teapartydev/typeid-go
 
 go 1.22.4
 
