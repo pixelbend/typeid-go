@@ -1,4 +1,4 @@
-module github.com/teapartydev/typeid-go
+module github.com/codefrantic/typeid-go
 
 go 1.22.4
 
