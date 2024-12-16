@@ -1,4 +1,4 @@
-module github.com/codefrantic/typeid-go
+module github.com/pixelbend/typeid-go
 
 go 1.22.4
 
