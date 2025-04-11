@@ -12,12 +12,21 @@ type TypeId string
 func (ti TypeId) String() string {
 	return string(ti)
 }
+
 func (ti TypeId) Type() string {
-	return strings.Split(string(ti), "_")[0]
+	parts := strings.SplitN(string(ti), "_", 2)
+	if len(parts) != 2 {
+		return ""
+	}
+	return parts[0]
 }
 
 func (ti TypeId) Id() string {
-	return strings.Split(string(ti), "_")[1]
+	parts := strings.SplitN(string(ti), "_", 2)
+	if len(parts) != 2 {
+		return ""
+	}
+	return parts[1]
 }
 
 func (ti TypeId) Length() int {
@@ -29,7 +38,7 @@ func Make(typeName string) (TypeId, error) {
 		return "", err
 	}
 
-	return TypeId(fmt.Sprintf(`%s_%s`, typeName, ulid.Make().String())), nil
+	return TypeId(fmt.Sprintf("%s_%s", typeName, ulid.Make().String())), nil
 }
 
 func Parse(typeName string, typeId string) (TypeId, error) {
@@ -37,17 +46,17 @@ func Parse(typeName string, typeId string) (TypeId, error) {
 		return "", err
 	}
 
-	typeIdParts := strings.Split(typeId, "_")
+	typeIdParts := strings.SplitN(typeId, "_", 2)
 	if len(typeIdParts) != 2 {
-		return "", fmt.Errorf("type id must contain two parts: type and ulid separated by an underscore")
+		return "", fmt.Errorf("type id must contain exactly one underscore separating type and ulid")
 	}
 
 	if typeIdParts[0] != typeName {
-		return "", fmt.Errorf("type id name '%s' does not match the given type name '%s'", typeIdParts[0], typeName)
+		return "", fmt.Errorf("type id prefix '%s' does not match expected type name '%s'", typeIdParts[0], typeName)
 	}
 
 	if _, err := ulid.Parse(typeIdParts[1]); err != nil {
-		return "", fmt.Errorf("type id invalid ulid '%s': %w", typeIdParts[1], err)
+		return "", fmt.Errorf("invalid ulid '%s': %w", typeIdParts[1], err)
 	}
 
 	return TypeId(typeId), nil
@@ -63,9 +72,9 @@ func validateTypeName(typeName string) error {
 		return fmt.Errorf("type name must not start or end with an underscore")
 	}
 
-	typeNameRegex := regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+	typeNameRegex := regexp.MustCompile(`^[a-zA-Z0-9]+(?:_[a-zA-Z0-9]+)*$`)
 	if !typeNameRegex.MatchString(typeName) {
-		return fmt.Errorf("type name must not contain invalid")
+		return fmt.Errorf("type name must only contain alphanumeric characters and single underscores (no special characters or spaces)")
 	}
 
 	return nil
